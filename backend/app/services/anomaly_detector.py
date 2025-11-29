@@ -1,0 +1,164 @@
+"""ML-based anomaly detection service."""
+import pickle
+import os
+from typing import Dict, Any, Optional
+from app.config import settings
+from app.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+
+class AnomalyDetector:
+    """Anomaly detection using ML model."""
+    
+    def __init__(self):
+        self.model = None
+        self.scaler = None
+        self.model_loaded = False
+        self.load_model()
+    
+    def load_model(self) -> bool:
+        """Load the trained ML model and scaler."""
+        try:
+            model_path = settings.model_path
+            model_dir = os.path.dirname(model_path) if os.path.dirname(model_path) else "."
+            scaler_path = os.path.join(model_dir, "scaler_v1.pkl")
+            
+            # Handle relative paths
+            if not os.path.isabs(model_path):
+                model_path = os.path.join(os.getcwd(), model_path)
+            if not os.path.isabs(scaler_path):
+                scaler_path = os.path.join(os.getcwd(), scaler_path)
+            
+            if os.path.exists(model_path) and os.path.exists(scaler_path):
+                with open(model_path, 'rb') as f:
+                    self.model = pickle.load(f)
+                with open(scaler_path, 'rb') as f:
+                    self.scaler = pickle.load(f)
+                self.model_loaded = True
+                logger.info(f"Model and scaler loaded successfully")
+                return True
+            else:
+                logger.warning(f"Model files not found at {model_path} or {scaler_path}. Using fallback detection.")
+                self.model_loaded = False
+                return False
+        except Exception as e:
+            logger.error(f"Error loading model: {e}")
+            self.model_loaded = False
+            return False
+    
+    def predict(self, features: Dict[str, float]) -> Dict[str, Any]:
+        """
+        Predict anomaly score for given features.
+        
+        Args:
+            features: Dictionary of feature values
+        
+        Returns:
+            Dictionary with anomaly_score, is_anomaly, and anomaly_type
+        """
+        if not self.model_loaded or self.model is None:
+            # Fallback to simple statistical detection
+            return self._statistical_detection(features)
+        
+        try:
+            # Convert features dict to array (model expects specific order)
+            feature_array = self._features_to_array(features)
+            
+            # Scale features using the trained scaler
+            if self.scaler:
+                feature_array_scaled = self.scaler.transform([feature_array])[0]
+            else:
+                feature_array_scaled = feature_array
+            
+            # Get anomaly score (for Isolation Forest, lower score = more anomalous)
+            anomaly_score = self.model.decision_function([feature_array_scaled])[0]
+            
+            # For Isolation Forest, negative scores indicate anomalies
+            # Normalize to 0-1 range where 1 is most anomalous
+            # Isolation Forest returns negative for anomalies, positive for normal
+            # We'll invert and normalize
+            normalized_score = 1.0 / (1.0 + abs(anomaly_score))
+            if anomaly_score < 0:  # It's an anomaly
+                normalized_score = 0.5 + (0.5 * (1.0 / (1.0 + abs(anomaly_score))))
+            
+            is_anomaly = normalized_score >= settings.anomaly_threshold
+            
+            # Determine anomaly type
+            anomaly_type = self._classify_anomaly_type(features, normalized_score)
+            
+            return {
+                "anomaly_score": float(normalized_score),
+                "is_anomaly": is_anomaly,
+                "anomaly_type": anomaly_type
+            }
+        except Exception as e:
+            logger.error(f"Error in model prediction: {e}")
+            return self._statistical_detection(features)
+    
+    def _features_to_array(self, features: Dict[str, float]) -> list:
+        """Convert features dict to array in model's expected order."""
+        # Default feature order (adjust based on your trained model)
+        feature_order = [
+            "response_time_ms",
+            "status_code",
+            "request_size_bytes",
+            "response_size_bytes",
+            "hour_of_day",
+            "day_of_week",
+            "minute_of_hour",
+            "is_error",
+            "is_server_error",
+            "is_client_error",
+            "endpoint_length",
+            "method_get",
+            "method_post",
+        ]
+        
+        return [features.get(key, 0.0) for key in feature_order]
+    
+    def _statistical_detection(self, features: Dict[str, float]) -> Dict[str, Any]:
+        """Fallback statistical anomaly detection."""
+        score = 0.0
+        anomaly_type = "normal"
+        
+        # Check for high response time
+        if features.get("response_time_ms", 0) > 1000:
+            score += 0.3
+            anomaly_type = "response_time_spike"
+        
+        # Check for errors
+        if features.get("is_server_error", 0) > 0:
+            score += 0.5
+            anomaly_type = "server_error"
+        elif features.get("is_client_error", 0) > 0:
+            score += 0.2
+            anomaly_type = "client_error"
+        
+        # Check for unusual request size
+        if features.get("request_size_bytes", 0) > 1000000:  # > 1MB
+            score += 0.2
+            if anomaly_type == "normal":
+                anomaly_type = "large_request"
+        
+        return {
+            "anomaly_score": min(score, 1.0),
+            "is_anomaly": score >= settings.anomaly_threshold,
+            "anomaly_type": anomaly_type
+        }
+    
+    def _classify_anomaly_type(self, features: Dict[str, float], score: float) -> str:
+        """Classify the type of anomaly based on features."""
+        if features.get("is_server_error", 0) > 0:
+            return "server_error"
+        elif features.get("is_client_error", 0) > 0:
+            return "client_error"
+        elif features.get("response_time_ms", 0) > 1000:
+            return "response_time_spike"
+        elif features.get("request_size_bytes", 0) > 1000000:
+            return "large_request"
+        elif score >= settings.anomaly_threshold:
+            return "pattern_anomaly"
+        else:
+            return "normal"
+

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: securaflow
+      POSTGRES_PASSWORD: securaflow
+      POSTGRES_DB: securaflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://securaflow:securaflow@db:5432/securaflow
+      MODEL_PATH: ./models/anomaly_detector_v1.pkl
+      ANOMALY_THRESHOLD: 0.7
+      LOG_LEVEL: INFO
+    depends_on:
+      - db
+    volumes:
+      - ./models:/app/models
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+
