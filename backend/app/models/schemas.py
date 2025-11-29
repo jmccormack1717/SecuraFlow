@@ -77,3 +77,55 @@ class StatsResponse(BaseModel):
     error_rate: float
     requests_per_second: float
 
+
+class ModelPerformanceResponse(BaseModel):
+    """Model performance metrics response."""
+    id: int
+    model_version: str
+    evaluation_date: datetime
+    total_predictions: int
+    true_positives: int
+    false_positives: int
+    true_negatives: int
+    false_negatives: int
+    precision: float
+    recall: float
+    f1_score: float
+    accuracy: float
+    auc_roc: Optional[float] = None
+    avg_anomaly_score: float
+    threshold_used: float
+
+
+class ModelPerformanceListResponse(BaseModel):
+    """List of model performance metrics."""
+    metrics: List[ModelPerformanceResponse]
+    total: int
+
+
+class UserCreate(BaseModel):
+    """Schema for user creation."""
+    email: str = Field(..., description="User email address")
+    username: str = Field(..., min_length=3, max_length=100, description="Username")
+    password: str = Field(..., min_length=6, description="Password")
+
+
+class UserResponse(BaseModel):
+    """Schema for user response."""
+    id: int
+    email: str
+    username: str
+    is_active: bool
+    created_at: datetime
+
+
+class Token(BaseModel):
+    """Schema for authentication token."""
+    access_token: str
+    token_type: str = "bearer"
+
+
+class TokenData(BaseModel):
+    """Schema for token data."""
+    username: Optional[str] = None
+

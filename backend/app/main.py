@@ -6,7 +6,8 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.config import settings
-from app.api.routes import traffic, metrics, anomalies, health, demo
+from app.api.routes import traffic, metrics, anomalies, health, demo, model_metrics, auth
+from app.middleware.correlation import CorrelationMiddleware
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -25,6 +26,9 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Add correlation ID middleware (should be first to track all requests)
+app.add_middleware(CorrelationMiddleware)
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -35,11 +39,13 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(traffic.router)
 app.include_router(metrics.router)
 app.include_router(anomalies.router)
 app.include_router(health.router)
 app.include_router(demo.router)
+app.include_router(model_metrics.router)
 
 
 @app.get("/")

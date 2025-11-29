@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useTheme } from '../../contexts/ThemeContext'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme()
+  const { user, isDemo, logout } = useAuth()
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -20,6 +22,24 @@ export default function Header() {
             </div>
           </Link>
           <div className="flex items-center space-x-4">
+            {user && (
+              <div className="flex items-center space-x-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {isDemo ? 'Guest User' : user.username}
+                  </p>
+                  {isDemo && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Demo Mode</p>
+                  )}
+                </div>
+                <button
+                  onClick={logout}
+                  className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

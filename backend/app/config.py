@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     
     # Logging
     log_level: str = "INFO"
+    structured_logging: bool = True  # Enable JSON structured logging
     
     # Metrics aggregation
     metrics_window_seconds: int = 60  # Aggregate metrics every minute
@@ -30,6 +31,11 @@ class Settings(BaseSettings):
     # Rate limiting
     rate_limit_per_minute: int = 60  # Requests per minute per IP
     rate_limit_enabled: bool = True
+    
+    # Authentication
+    secret_key: str = "your-secret-key-change-in-production"  # Change in production!
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
     
     @computed_field
     @property

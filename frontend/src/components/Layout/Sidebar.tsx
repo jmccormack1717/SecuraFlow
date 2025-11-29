@@ -4,6 +4,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: '📊' },
   { name: 'Anomalies', href: '/anomalies', icon: '⚠️' },
   { name: 'Metrics', href: '/metrics', icon: '📈' },
+  { name: 'Model Performance', href: '/model-metrics', icon: '🤖' },
 ]
 
 export default function Sidebar() {

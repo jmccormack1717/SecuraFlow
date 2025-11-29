@@ -9,9 +9,14 @@ Real-time API monitoring and anomaly detection system. A full-stack application 
 - **Real-time Traffic Monitoring**: Process and analyze API traffic in real-time
 - **ML-based Anomaly Detection**: Detect anomalies using machine learning models (Isolation Forest)
 - **Interactive Dashboard**: React-based dashboard with real-time visualizations and metrics
+- **Model Performance Tracking**: ML model evaluation metrics (precision, recall, F1, confusion matrix)
+- **Request Correlation IDs**: Track requests across services with correlation IDs and structured logging
+- **Error Boundaries**: Production-ready error handling with React error boundaries
+- **Authentication**: JWT-based authentication with signup/login and guest demo access
+- **Rate Limiting**: API rate limiting to prevent abuse (60 requests/minute)
 - **Dark Mode Support**: Toggle between light and dark themes with system preference detection
 - **Demo Data Generation**: One-click demo data generation for testing and demonstrations
-- **Production Ready**: Docker containerization, CI/CD setup, and deployed on Render
+- **Production Ready**: Docker containerization, CI/CD setup, comprehensive testing, and deployed on Render
 
 ## Architecture
 
@@ -196,6 +201,12 @@ docker-compose up
 - `GET /api/anomalies` - Get detected anomalies
 - `GET /api/health` - Health check
 - `POST /api/demo/generate` - Generate demo traffic data (for testing)
+- `GET /api/model-metrics` - Get ML model performance metrics
+- `POST /api/model-metrics/evaluate` - Evaluate current model performance
+- `POST /api/auth/signup` - Create new user account
+- `POST /api/auth/login` - Login and get access token
+- `POST /api/auth/demo` - Get demo guest token (no authentication required)
+- `GET /api/auth/me` - Get current authenticated user
 
 See the [API documentation](https://securaflow-backend-9ihj.onrender.com/docs) for detailed endpoint information.
 
@@ -234,9 +245,12 @@ The application is deployed on Render:
 ### Using the Live Demo
 
 1. Visit the [live demo](https://securaflow-frontend.onrender.com)
-2. Click "Generate Demo Data" on the dashboard to populate with sample traffic
-3. Explore the dashboard, metrics, and anomalies pages
-4. Toggle dark mode using the sun/moon icon in the header
+2. Click **"Continue as Guest"** to access the demo without creating an account
+   - Or sign up/login for a full account experience
+   - **Note**: On Render's free tier, user accounts and data may be cleared after service restarts or database inactivity. For quick demo access, "Continue as Guest" is recommended.
+3. Click "Generate Demo Data" on the dashboard to populate with sample traffic
+4. Explore the dashboard, metrics, anomalies, and model performance pages
+5. Toggle dark mode using the sun/moon icon in the header
 
 ### Local Development
 

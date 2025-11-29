@@ -62,3 +62,38 @@ class SystemHealth(Base):
     requests_per_second = Column(Float)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
+class ModelPerformance(Base):
+    """ML model performance metrics."""
+    __tablename__ = "model_performance"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    model_version = Column(String(50), nullable=False, index=True)
+    evaluation_date = Column(DateTime(timezone=True), nullable=False, index=True)
+    total_predictions = Column(Integer, nullable=False)
+    true_positives = Column(Integer, default=0)
+    false_positives = Column(Integer, default=0)
+    true_negatives = Column(Integer, default=0)
+    false_negatives = Column(Integer, default=0)
+    precision = Column(Float)
+    recall = Column(Float)
+    f1_score = Column(Float)
+    accuracy = Column(Float)
+    auc_roc = Column(Float, nullable=True)
+    avg_anomaly_score = Column(Float)
+    threshold_used = Column(Float)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class User(Base):
+    """User accounts for authentication."""
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    username = Column(String(100), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_login = Column(DateTime(timezone=True), nullable=True)
+

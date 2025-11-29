@@ -9,6 +9,15 @@ const api = axios.create({
   },
 })
 
+// Add token to requests if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 export interface TrafficData {
   endpoint: string
   method: string
@@ -127,6 +136,85 @@ export const demoApi = {
     hours_back?: number
   }): Promise<DemoDataResponse> => {
     const response = await api.post<DemoDataResponse>('/api/demo/generate', null, { params })
+    return response.data
+  },
+}
+
+export interface ModelPerformance {
+  id: number
+  model_version: string
+  evaluation_date: string
+  total_predictions: number
+  true_positives: number
+  false_positives: number
+  true_negatives: number
+  false_negatives: number
+  precision: number
+  recall: number
+  f1_score: number
+  accuracy: number
+  auc_roc?: number
+  avg_anomaly_score: number
+  threshold_used: number
+}
+
+export const modelMetricsApi = {
+  getMetrics: async (limit?: number): Promise<{ metrics: ModelPerformance[]; total: number }> => {
+    const response = await api.get<{ metrics: ModelPerformance[]; total: number }>(
+      '/api/model-metrics',
+      { params: { limit } }
+    )
+    return response.data
+  },
+  evaluate: async (): Promise<ModelPerformance> => {
+    const response = await api.post<ModelPerformance>('/api/model-metrics/evaluate')
+    return response.data
+  },
+}
+
+export interface User {
+  id: number
+  email: string
+  username: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface TokenResponse {
+  access_token: string
+  token_type: string
+}
+
+export const authApi = {
+  signup: async (email: string, username: string, password: string): Promise<User> => {
+    const response = await api.post<User>('/api/auth/signup', {
+      email,
+      username,
+      password,
+    })
+    return response.data
+  },
+  login: async (username: string, password: string): Promise<TokenResponse> => {
+    const params = new URLSearchParams()
+    params.append('username', username)
+    params.append('password', password)
+    const response = await api.post<TokenResponse>('/api/auth/login', params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+    return response.data
+  },
+  demoLogin: async (): Promise<TokenResponse> => {
+    const response = await api.post<TokenResponse>('/api/auth/demo')
+    return response.data
+  },
+  getCurrentUser: async (token: string): Promise<User> => {
+    const response = await api.get<User>('/api/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     return response.data
   },
 }
