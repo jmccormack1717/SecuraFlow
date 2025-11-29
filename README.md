@@ -20,6 +20,115 @@ Real-time API monitoring and anomaly detection system. A full-stack application 
 - **ML**: Scikit-learn (Isolation Forest) for anomaly detection
 - **Deployment**: Docker + Render
 
+### System Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        User[Users/Browsers]
+        TrafficGen[Traffic Generator Script]
+    end
+
+    subgraph "Frontend - React + TypeScript"
+        UI[Dashboard UI]
+        Components[React Components]
+        API_Client[API Client Service]
+    end
+
+    subgraph "Backend - FastAPI"
+        API[FastAPI Application]
+        RateLimit[Rate Limiter]
+        CORS[CORS Middleware]
+        
+        subgraph "API Routes"
+            TrafficRoute[/api/traffic]
+            MetricsRoute[/api/metrics]
+            AnomaliesRoute[/api/anomalies]
+            HealthRoute[/api/health]
+            DemoRoute[/api/demo/generate]
+        end
+        
+        subgraph "Services"
+            FeatureExtractor[Feature Extractor]
+            AnomalyDetector[Anomaly Detector]
+            Logger[Logging Service]
+        end
+    end
+
+    subgraph "Data Layer"
+        PostgreSQL[(PostgreSQL Database)]
+        TrafficLogs[Traffic Logs Table]
+        Anomalies[Anomalies Table]
+        Metrics[Metrics Aggregation]
+    end
+
+    subgraph "ML Pipeline"
+        MLModel[Isolation Forest Model]
+        Scaler[Feature Scaler]
+        Training[Training Script]
+    end
+
+    subgraph "Deployment"
+        Render[Render Platform]
+        Docker[Docker Containers]
+        CI[GitHub Actions CI/CD]
+    end
+
+    %% User interactions
+    User -->|HTTP Requests| UI
+    UI -->|API Calls| API_Client
+    API_Client -->|REST API| API
+    
+    %% Traffic generation
+    TrafficGen -->|POST /api/traffic| TrafficRoute
+    
+    %% API flow
+    API --> RateLimit
+    RateLimit --> CORS
+    CORS --> TrafficRoute
+    CORS --> MetricsRoute
+    CORS --> AnomaliesRoute
+    CORS --> HealthRoute
+    CORS --> DemoRoute
+    
+    %% Traffic ingestion flow
+    TrafficRoute --> FeatureExtractor
+    FeatureExtractor --> AnomalyDetector
+    AnomalyDetector --> MLModel
+    AnomalyDetector --> Scaler
+    AnomalyDetector --> PostgreSQL
+    
+    %% Data storage
+    PostgreSQL --> TrafficLogs
+    PostgreSQL --> Anomalies
+    PostgreSQL --> Metrics
+    
+    %% Metrics and anomalies retrieval
+    MetricsRoute --> PostgreSQL
+    AnomaliesRoute --> PostgreSQL
+    
+    %% ML model training
+    Training --> MLModel
+    Training --> Scaler
+    
+    %% Deployment
+    CI --> Render
+    Render --> Docker
+    Docker --> API
+    Docker --> PostgreSQL
+    
+    %% Logging
+    API --> Logger
+    AnomalyDetector --> Logger
+
+    style User fill:#e1f5ff
+    style UI fill:#e1f5ff
+    style API fill:#fff4e1
+    style PostgreSQL fill:#e8f5e9
+    style MLModel fill:#f3e5f5
+    style Render fill:#fce4ec
+```
+
 ## Quick Start
 
 ### Backend
