@@ -45,6 +45,15 @@ async def startup_event():
     """Startup event handler."""
     logger.info("SecuraFlow API starting up...")
     logger.info(f"API Version: {settings.api_version}")
+    
+    # Initialize database tables if they don't exist
+    try:
+        from app.database.base import Base, engine
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables initialized")
+    except Exception as e:
+        logger.error(f"Error initializing database tables: {e}")
+        # Don't fail startup if tables already exist
 
 
 @app.on_event("shutdown")
