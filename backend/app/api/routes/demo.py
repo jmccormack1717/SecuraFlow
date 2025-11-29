@@ -40,17 +40,17 @@ USER_AGENTS = [
 
 
 def generate_normal_traffic_data(timestamp: datetime) -> dict:
-    """Generate normal traffic data."""
+    """Generate normal traffic data - fast, successful, small-medium requests."""
     return {
         "endpoint": random.choice(ENDPOINTS),
         "method": random.choice(METHODS),
         "status_code": random.choices(
             [200, 201, 204],
-            weights=[80, 15, 5]
+            weights=[85, 12, 3]
         )[0],
-        "response_time_ms": random.randint(50, 300),
-        "request_size_bytes": random.randint(100, 2000),
-        "response_size_bytes": random.randint(500, 5000),
+        "response_time_ms": random.randint(20, 150),  # Fast: 20-150ms
+        "request_size_bytes": random.randint(50, 2000),  # Small-medium
+        "response_size_bytes": random.randint(100, 5000),  # Small-medium
         "ip_address": f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}",
         "user_agent": random.choice(USER_AGENTS),
         "timestamp": timestamp,
@@ -58,58 +58,48 @@ def generate_normal_traffic_data(timestamp: datetime) -> dict:
 
 
 def generate_anomaly_traffic_data(timestamp: datetime) -> dict:
-    """Generate anomaly traffic data."""
+    """Generate anomaly traffic data - very distinct patterns for easy detection."""
     anomaly_type = random.choice([
-        "server_error",
-        "client_error",
-        "response_time_spike",
-        "large_request",
+        "server_error",      # 5xx errors - clear anomaly
+        "very_slow",         # >3000ms - clear anomaly
+        "very_large",        # >10MB - clear anomaly
     ])
     
     if anomaly_type == "server_error":
+        # Server errors: 5xx status codes, small error responses
         return {
             "endpoint": random.choice(ENDPOINTS),
             "method": random.choice(METHODS),
-            "status_code": random.choice([500, 502, 503, 504]),
-            "response_time_ms": random.randint(1000, 5000),
-            "request_size_bytes": random.randint(100, 2000),
-            "response_size_bytes": random.randint(100, 500),
+            "status_code": random.choice([500, 502, 503, 504]),  # Always 5xx
+            "response_time_ms": random.randint(100, 1000),  # Can vary
+            "request_size_bytes": random.randint(50, 2000),  # Normal request
+            "response_size_bytes": random.randint(50, 300),  # Small error response
             "ip_address": f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}",
             "user_agent": random.choice(USER_AGENTS),
             "timestamp": timestamp,
         }
-    elif anomaly_type == "client_error":
+    elif anomaly_type == "very_slow":
+        # Very slow responses: >3000ms but successful
         return {
             "endpoint": random.choice(ENDPOINTS),
             "method": random.choice(METHODS),
-            "status_code": random.choice([400, 401, 403, 404]),
-            "response_time_ms": random.randint(50, 200),
-            "request_size_bytes": random.randint(100, 2000),
-            "response_size_bytes": random.randint(100, 500),
+            "status_code": 200,  # Successful but slow
+            "response_time_ms": random.randint(3000, 10000),  # Very slow: 3-10 seconds
+            "request_size_bytes": random.randint(50, 2000),  # Normal request
+            "response_size_bytes": random.randint(100, 5000),  # Normal response
             "ip_address": f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}",
             "user_agent": random.choice(USER_AGENTS),
             "timestamp": timestamp,
         }
-    elif anomaly_type == "response_time_spike":
+    else:  # very_large
+        # Very large requests/responses: >10MB
         return {
             "endpoint": random.choice(ENDPOINTS),
-            "method": random.choice(METHODS),
-            "status_code": 200,
-            "response_time_ms": random.randint(2000, 10000),
-            "request_size_bytes": random.randint(100, 2000),
-            "response_size_bytes": random.randint(500, 5000),
-            "ip_address": f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}",
-            "user_agent": random.choice(USER_AGENTS),
-            "timestamp": timestamp,
-        }
-    else:  # large_request
-        return {
-            "endpoint": random.choice(ENDPOINTS),
-            "method": random.choice(METHODS),
-            "status_code": 200,
-            "response_time_ms": random.randint(100, 500),
-            "request_size_bytes": random.randint(10000, 50000),
-            "response_size_bytes": random.randint(50000, 200000),
+            "method": random.choice(["GET", "POST"]),  # Large requests
+            "status_code": 200,  # Successful
+            "response_time_ms": random.randint(100, 500),  # Normal response time
+            "request_size_bytes": random.randint(10000000, 20000000),  # Very large: 10-20MB
+            "response_size_bytes": random.randint(15000000, 30000000),  # Very large: 15-30MB
             "ip_address": f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}",
             "user_agent": random.choice(USER_AGENTS),
             "timestamp": timestamp,

@@ -71,20 +71,34 @@ class AnomalyDetector:
             else:
                 feature_array_scaled = feature_array
             
-            # Get anomaly score (for Isolation Forest, lower score = more anomalous)
+            # Get anomaly score from Isolation Forest
             # decision_function returns: negative for anomalies, positive for normal
-            anomaly_score = self.model.decision_function([feature_array_scaled])[0]
+            # Typical range: -0.5 (most anomalous) to 0.5 (most normal)
+            raw_score = self.model.decision_function([feature_array_scaled])[0]
             
-            # Better normalization: convert to 0-1 range where higher = more anomalous
-            # Isolation Forest scores typically range from -0.5 to 0.5
-            # Negative scores = anomalies, positive = normal
-            # We'll use a sigmoid-like transformation
-            # Normalize: -0.5 (most anomalous) -> 1.0, 0.5 (most normal) -> 0.0
-            normalized_score = 1.0 - (anomaly_score + 0.5)  # Shift and invert
-            normalized_score = max(0.0, min(1.0, normalized_score))  # Clamp to [0, 1]
+            # Convert to anomaly probability using sigmoid transformation
+            # This gives us a smooth 0-1 score where higher = more anomalous
+            # Using sigmoid: 1 / (1 + exp(-k * (threshold - score)))
+            # For Isolation Forest: negative scores are anomalies
+            # We want: score < 0 -> high probability, score > 0 -> low probability
+            
+            # Invert and scale: negative scores become positive anomaly scores
+            # Use exponential to create a smooth curve
+            # More negative = higher anomaly score
+            if raw_score < 0:
+                # It's an anomaly - convert negative to positive scale
+                # -0.5 -> ~0.9, -0.1 -> ~0.6
+                normalized_score = 0.5 + (0.5 * (1.0 - abs(raw_score) * 2))
+            else:
+                # It's normal - convert to low anomaly score
+                # 0.0 -> 0.5, 0.5 -> ~0.1
+                normalized_score = 0.5 * (1.0 - min(1.0, raw_score * 2))
+            
+            # Ensure score is in [0, 1] range
+            normalized_score = max(0.0, min(1.0, normalized_score))
             
             # Use threshold to determine if it's an anomaly
-            # Higher threshold = fewer false positives
+            # Higher threshold = fewer false positives, better precision
             is_anomaly = normalized_score >= settings.anomaly_threshold
             
             # Determine anomaly type
@@ -101,7 +115,7 @@ class AnomalyDetector:
     
     def _features_to_array(self, features: Dict[str, float]) -> list:
         """Convert features dict to array in model's expected order."""
-        # Default feature order (adjust based on your trained model)
+        # Feature order must match training script
         feature_order = [
             "response_time_ms",
             "status_code",
@@ -116,6 +130,11 @@ class AnomalyDetector:
             "endpoint_length",
             "method_get",
             "method_post",
+            "response_to_request_ratio",
+            "throughput_mbps",
+            "is_very_slow",
+            "is_very_large_request",
+            "is_very_large_response",
         ]
         
         return [features.get(key, 0.0) for key in feature_order]
