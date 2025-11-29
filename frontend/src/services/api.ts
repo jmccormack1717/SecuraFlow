@@ -109,5 +109,27 @@ export const healthApi = {
   },
 }
 
+export interface DemoDataResponse {
+  success: boolean
+  message: string
+  traffic_logs_created: number
+  anomalies_created: number
+  time_range: {
+    start: string
+    end: string
+  }
+}
+
+export const demoApi = {
+  generate: async (params?: {
+    count?: number
+    anomaly_rate?: number
+    hours_back?: number
+  }): Promise<DemoDataResponse> => {
+    const response = await api.post<DemoDataResponse>('/api/demo/generate', null, { params })
+    return response.data
+  },
+}
+
 export default api
 

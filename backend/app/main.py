@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.api.routes import traffic, metrics, anomalies, health
+from app.api.routes import traffic, metrics, anomalies, health, demo
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -28,6 +28,7 @@ app.include_router(traffic.router)
 app.include_router(metrics.router)
 app.include_router(anomalies.router)
 app.include_router(health.router)
+app.include_router(demo.router)
 
 
 @app.get("/")

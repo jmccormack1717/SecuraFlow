@@ -18,20 +18,20 @@ export default function SystemHealth({ health }: SystemHealthProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'healthy':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
       case 'degraded':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
       default:
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
     }
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">System Health</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Health</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <p className="text-sm text-gray-500">Status</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
           <span
             className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
               health.status
@@ -41,20 +41,20 @@ export default function SystemHealth({ health }: SystemHealthProps) {
           </span>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Database</p>
-          <p className="text-sm font-medium text-gray-900 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Database</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">
             {health.database === 'connected' ? '✓ Connected' : '✗ Disconnected'}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">ML Model</p>
-          <p className="text-sm font-medium text-gray-900 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400">ML Model</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">
             {health.model_loaded ? '✓ Loaded' : '✗ Not Loaded'}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Uptime</p>
-          <p className="text-sm font-medium text-gray-900 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Uptime</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">
             {formatUptime(health.uptime_seconds)}
           </p>
         </div>
