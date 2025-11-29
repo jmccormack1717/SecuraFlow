@@ -1,6 +1,7 @@
 """Configuration management for SecuraFlow backend."""
 from pydantic_settings import BaseSettings
-from typing import List
+from pydantic import field_validator
+from typing import List, Union
 
 
 class Settings(BaseSettings):
@@ -23,6 +24,17 @@ class Settings(BaseSettings):
     
     # Metrics aggregation
     metrics_window_seconds: int = 60  # Aggregate metrics every minute
+    
+    @field_validator('cors_origins', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v):
+        """Parse CORS origins from string or list."""
+        if isinstance(v, str):
+            # Split by comma and strip whitespace
+            return [origin.strip() for origin in v.split(',') if origin.strip()]
+        elif isinstance(v, list):
+            return v
+        return ["http://localhost:3000", "http://localhost:5173"]
     
     class Config:
         env_file = ".env"
