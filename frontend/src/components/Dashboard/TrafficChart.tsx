@@ -16,6 +16,17 @@ export default function TrafficChart({ metrics }: TrafficChartProps) {
       errors: metric.error_count,
     }))
 
+  if (metrics.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Traffic Overview</h3>
+        <div className="flex items-center justify-center h-64 border-2 border-dashed border-gray-200 rounded">
+          <p className="text-gray-400">No data available for the selected time range</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Traffic Overview</h3>

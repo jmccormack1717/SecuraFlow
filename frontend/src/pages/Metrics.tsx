@@ -5,7 +5,7 @@ import TrafficChart from '../components/Dashboard/TrafficChart'
 export default function Metrics() {
   const [metrics, setMetrics] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [timeRange, setTimeRange] = useState<'1h' | '6h' | '24h'>('1h')
+  const [timeRange, setTimeRange] = useState<'1h' | '6h' | '24h'>('24h')
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -30,9 +30,11 @@ export default function Metrics() {
           start_time: startTime.toISOString(),
           end_time: endTime.toISOString(),
         })
-        setMetrics(data.metrics)
+        console.log('Metrics data received:', data)
+        setMetrics(data.metrics || [])
       } catch (error) {
         console.error('Error fetching metrics:', error)
+        setMetrics([])
       } finally {
         setLoading(false)
       }
@@ -87,6 +89,11 @@ export default function Metrics() {
 
       {loading ? (
         <div className="text-center py-12 text-gray-500">Loading metrics...</div>
+      ) : metrics.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">No metrics found for the selected time range</p>
+          <p className="text-gray-400 text-sm mt-2">Try selecting a different time range or generate some traffic</p>
+        </div>
       ) : (
         <div className="space-y-6">
           <TrafficChart metrics={metrics} />
