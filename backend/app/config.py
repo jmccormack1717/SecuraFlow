@@ -1,7 +1,8 @@
 """Configuration management for SecuraFlow backend."""
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
-from typing import List, Union
+from pydantic import computed_field
+from typing import List
+import os
 
 
 class Settings(BaseSettings):
@@ -17,7 +18,8 @@ class Settings(BaseSettings):
     # API
     api_title: str = "SecuraFlow API"
     api_version: str = "1.0.0"
-    cors_origins: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    # Store as string to avoid JSON parsing issues with pydantic-settings
+    cors_origins_str: str = "http://localhost:3000,http://localhost:5173"
     
     # Logging
     log_level: str = "INFO"
@@ -25,16 +27,17 @@ class Settings(BaseSettings):
     # Metrics aggregation
     metrics_window_seconds: int = 60  # Aggregate metrics every minute
     
-    @field_validator('cors_origins', mode='before')
-    @classmethod
-    def parse_cors_origins(cls, v):
-        """Parse CORS origins from string or list."""
-        if isinstance(v, str):
-            # Split by comma and strip whitespace
-            return [origin.strip() for origin in v.split(',') if origin.strip()]
-        elif isinstance(v, list):
-            return v
-        return ["http://localhost:3000", "http://localhost:5173"]
+    @computed_field
+    @property
+    def cors_origins(self) -> List[str]:
+        """Parse CORS origins string into list."""
+        # Get from environment variable if set, otherwise use default
+        cors_str = os.getenv('CORS_ORIGINS', self.cors_origins_str)
+        return [
+            origin.strip() 
+            for origin in cors_str.split(',') 
+            if origin.strip()
+        ]
     
     class Config:
         env_file = ".env"
