@@ -72,16 +72,19 @@ class AnomalyDetector:
                 feature_array_scaled = feature_array
             
             # Get anomaly score (for Isolation Forest, lower score = more anomalous)
+            # decision_function returns: negative for anomalies, positive for normal
             anomaly_score = self.model.decision_function([feature_array_scaled])[0]
             
-            # For Isolation Forest, negative scores indicate anomalies
-            # Normalize to 0-1 range where 1 is most anomalous
-            # Isolation Forest returns negative for anomalies, positive for normal
-            # We'll invert and normalize
-            normalized_score = 1.0 / (1.0 + abs(anomaly_score))
-            if anomaly_score < 0:  # It's an anomaly
-                normalized_score = 0.5 + (0.5 * (1.0 / (1.0 + abs(anomaly_score))))
+            # Better normalization: convert to 0-1 range where higher = more anomalous
+            # Isolation Forest scores typically range from -0.5 to 0.5
+            # Negative scores = anomalies, positive = normal
+            # We'll use a sigmoid-like transformation
+            # Normalize: -0.5 (most anomalous) -> 1.0, 0.5 (most normal) -> 0.0
+            normalized_score = 1.0 - (anomaly_score + 0.5)  # Shift and invert
+            normalized_score = max(0.0, min(1.0, normalized_score))  # Clamp to [0, 1]
             
+            # Use threshold to determine if it's an anomaly
+            # Higher threshold = fewer false positives
             is_anomaly = normalized_score >= settings.anomaly_threshold
             
             # Determine anomaly type

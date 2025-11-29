@@ -98,11 +98,19 @@ async def evaluate_model_performance(
         ).limit(5000).all()
         
         for log in all_logs:
-            is_error = log.status_code >= 400
+            # Better ground truth: consider multiple anomaly indicators
+            # True anomaly if: server error (5xx), very slow response (>2000ms), or very large request (>10MB)
+            is_true_anomaly = (
+                log.status_code >= 500 or  # Server errors
+                log.response_time_ms > 2000 or  # Very slow
+                (log.request_size_bytes and log.request_size_bytes > 10000000) or  # Very large request
+                (log.response_size_bytes and log.response_size_bytes > 50000000)  # Very large response
+            )
+            
             is_anomaly = any(a.traffic_log_id == log.id for a in recent_anomalies)
             
             if is_anomaly:
-                if is_error:
+                if is_true_anomaly:
                     tp += 1
                 else:
                     fp += 1
@@ -112,7 +120,7 @@ async def evaluate_model_performance(
                         total_score += anomaly.anomaly_score
                         break
             else:
-                if is_error:
+                if is_true_anomaly:
                     fn += 1
                 else:
                     tn += 1
