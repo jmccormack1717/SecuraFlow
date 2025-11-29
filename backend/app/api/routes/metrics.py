@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from app.database.base import get_db
 from app.database.models import Metric, TrafficLog
@@ -23,15 +23,24 @@ async def get_metrics(
     """
     Get aggregated metrics.
     
-    If no time range is provided, returns metrics from the last hour.
+    If no time range is provided, returns metrics from the last 24 hours.
     Aggregates directly from traffic logs.
     """
     try:
-        # Default to last hour if no time range provided
+        # Default to last 24 hours if no time range provided (more lenient)
         if not end_time:
-            end_time = datetime.now()
+            end_time = datetime.now(timezone.utc)
+        else:
+            # Ensure timezone aware
+            if end_time.tzinfo is None:
+                end_time = end_time.replace(tzinfo=timezone.utc)
+        
         if not start_time:
-            start_time = end_time - timedelta(hours=1)
+            start_time = end_time - timedelta(hours=24)  # Extended to 24 hours
+        else:
+            # Ensure timezone aware
+            if start_time.tzinfo is None:
+                start_time = start_time.replace(tzinfo=timezone.utc)
         
         # Query traffic logs
         query = db.query(TrafficLog).filter(
@@ -44,6 +53,8 @@ async def get_metrics(
         
         traffic_logs = query.all()
         
+        logger.info(f"Found {len(traffic_logs)} traffic logs in range {start_time} to {end_time}")
+        
         # If no logs, return empty
         if not traffic_logs:
             return MetricsListResponse(metrics=[], total=0)
@@ -53,7 +64,12 @@ async def get_metrics(
         
         for log in traffic_logs:
             # Round timestamp to nearest minute for grouping
-            time_window = log.timestamp.replace(second=0, microsecond=0)
+            # Handle timezone-aware timestamps
+            log_time = log.timestamp
+            if log_time.tzinfo is None:
+                log_time = log_time.replace(tzinfo=timezone.utc)
+            
+            time_window = log_time.replace(second=0, microsecond=0)
             key = (time_window, log.endpoint if not endpoint else None)
             
             if key not in metrics_dict:
@@ -91,6 +107,8 @@ async def get_metrics(
                     p99_response_time_ms=p99
                 )
             )
+        
+        logger.info(f"Returning {len(metric_responses)} aggregated metrics")
         
         return MetricsListResponse(
             metrics=metric_responses,
