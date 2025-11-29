@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     api_title: str = "SecuraFlow API"
     api_version: str = "1.0.0"
     # Store as string to avoid JSON parsing issues with pydantic-settings
-    cors_origins_str: str = "http://localhost:3000,http://localhost:5173"
+    cors_origins_str: str = "http://localhost:3000,http://localhost:5173,https://securaflow-frontend.onrender.com"
     
     # Logging
     log_level: str = "INFO"
