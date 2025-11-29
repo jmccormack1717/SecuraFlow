@@ -6,7 +6,7 @@ export default function Anomalies() {
   const [anomalies, setAnomalies] = useState<any[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'resolved' | 'unresolved'>('unresolved')
+  const [filter, setFilter] = useState<'all' | 'unresolved'>('unresolved')
   const [page, setPage] = useState(0)
   const limit = 50
 
@@ -14,7 +14,7 @@ export default function Anomalies() {
     const fetchAnomalies = async () => {
       try {
         setLoading(true)
-        const resolved = filter === 'all' ? undefined : filter === 'resolved'
+        const resolved = filter === 'all' ? undefined : false
         const data = await anomaliesApi.getAnomalies({
           limit,
           offset: page * limit,
@@ -74,21 +74,20 @@ export default function Anomalies() {
           >
             Unresolved
           </button>
-          <button
-            onClick={() => setFilter('resolved')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filter === 'resolved'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-            }`}
-          >
-            Resolved
-          </button>
         </div>
       </div>
 
       {loading ? (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">Loading anomalies...</div>
+      ) : anomalies.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400 text-lg">No anomalies found</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+            {filter === 'unresolved' 
+              ? 'No unresolved anomalies detected. System is operating normally.'
+              : 'No anomalies detected in the system.'}
+          </p>
+        </div>
       ) : (
         <>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
