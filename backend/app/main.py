@@ -1,11 +1,18 @@
 """Main FastAPI application."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from app.config import settings
 from app.api.routes import traffic, metrics, anomalies, health, demo
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+# Initialize rate limiter (shared instance)
+limiter = Limiter(key_func=get_remote_address)
 
 # Create FastAPI app
 app = FastAPI(
@@ -13,6 +20,10 @@ app = FastAPI(
     version=settings.api_version,
     description="Real-time API monitoring and anomaly detection system"
 )
+
+# Attach limiter to app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Configure CORS
 app.add_middleware(

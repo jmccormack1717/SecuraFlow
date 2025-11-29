@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     # Metrics aggregation
     metrics_window_seconds: int = 60  # Aggregate metrics every minute
     
+    # Rate limiting
+    rate_limit_per_minute: int = 60  # Requests per minute per IP
+    rate_limit_enabled: bool = True
+    
     @computed_field
     @property
     def cors_origins(self) -> List[str]:

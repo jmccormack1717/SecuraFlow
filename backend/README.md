@@ -31,7 +31,7 @@ uvicorn app.main:app --reload
 
 ## API Endpoints
 
-- `POST /api/traffic` - Ingest traffic data
+- `POST /api/traffic` - Ingest traffic data (rate limited: 60 requests/minute)
 - `GET /api/metrics` - Get aggregated metrics (supports time range filtering)
 - `GET /api/anomalies` - Get detected anomalies (supports pagination and filtering)
 - `GET /api/health` - Health check endpoint
@@ -44,10 +44,30 @@ When running locally, visit `http://localhost:8000/docs` for interactive API doc
 
 Live API docs: [https://securaflow-backend-9ihj.onrender.com/docs](https://securaflow-backend-9ihj.onrender.com/docs)
 
+## Rate Limiting
+
+The traffic ingestion endpoint (`POST /api/traffic`) is rate limited to prevent abuse:
+- Default: 60 requests per minute per IP address
+- Configurable via `RATE_LIMIT_PER_MINUTE` environment variable
+- Can be disabled by setting `RATE_LIMIT_ENABLED=false`
+
+Rate limit exceeded responses return HTTP 429 with appropriate error message.
+
+## Testing
+
+Run tests with pytest:
+```bash
+pytest tests/ -v
+```
+
+Run tests with coverage:
+```bash
+pytest tests/ -v --cov=app --cov-report=html
+```
+
 ## Development
 
 Run with auto-reload:
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-

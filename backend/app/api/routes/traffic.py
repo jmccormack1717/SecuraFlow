@@ -1,5 +1,8 @@
 """Traffic ingestion endpoints."""
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.database.base import get_db
@@ -7,6 +10,7 @@ from app.database.models import TrafficLog, Anomaly
 from app.models.schemas import TrafficData, TrafficResponse
 from app.services.feature_extractor import FeatureExtractor
 from app.services.anomaly_detector import AnomalyDetector
+from app.config import settings
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -19,6 +23,7 @@ anomaly_detector = AnomalyDetector()
 
 @router.post("", response_model=TrafficResponse)
 async def ingest_traffic(
+    request: Request,
     traffic_data: TrafficData,
     db: Session = Depends(get_db)
 ):
@@ -27,7 +32,16 @@ async def ingest_traffic(
     
     This endpoint receives traffic data, extracts features,
     runs anomaly detection, and stores the results.
+    
+    Rate limited to prevent abuse.
     """
+    # Apply rate limiting if enabled
+    if settings.rate_limit_enabled:
+        limiter = request.app.state.limiter
+        # Check rate limit - hit() returns True if limit exceeded
+        if limiter.hit(f"{settings.rate_limit_per_minute}/minute", get_remote_address(request)):
+            raise RateLimitExceeded(f"Rate limit exceeded: {settings.rate_limit_per_minute} requests per minute")
+    
     try:
         # Set timestamp if not provided
         if not traffic_data.timestamp:
