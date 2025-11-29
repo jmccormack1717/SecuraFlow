@@ -11,7 +11,6 @@ export default function Dashboard() {
   const [health, setHealth] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
-  const [hasData, setHasData] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +24,6 @@ export default function Dashboard() {
         setMetrics(metricsData.metrics)
         setRecentAnomalies(anomaliesData.anomalies)
         setHealth(healthData)
-        setHasData(metricsData.metrics.length > 0 || anomaliesData.anomalies.length > 0)
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
       } finally {
@@ -56,7 +54,6 @@ export default function Dashboard() {
       ])
       setMetrics(metricsData.metrics)
       setRecentAnomalies(anomaliesData.anomalies)
-      setHasData(true)
       
       // Show success message
       alert(`Demo data generated successfully! Created ${result.traffic_logs_created} traffic logs with ${result.anomalies_created} anomalies.`)
