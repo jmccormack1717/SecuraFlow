@@ -5,7 +5,7 @@ import random
 from datetime import datetime
 from typing import List
 
-API_URL = "http://localhost:8000/api/traffic"
+API_URL = "https://securaflow-backend-9ihj.onrender.com/api/traffic"
 
 # Sample endpoints
 ENDPOINTS = [
