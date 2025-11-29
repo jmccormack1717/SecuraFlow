@@ -252,6 +252,27 @@ The application is deployed on Render:
 4. Explore the dashboard, metrics, anomalies, and model performance pages
 5. Toggle dark mode using the sun/moon icon in the header
 
+### Improving Model Performance
+
+If model performance metrics are low (high false positives), you can:
+
+1. **Retrain with improved parameters:**
+   ```bash
+   cd backend
+   python ml/retrain_improved.py
+   ```
+   This will train a new model with:
+   - Reduced contamination (5% instead of 10%)
+   - More trees (200 instead of 100)
+   - Better training data distribution
+   - Improved anomaly threshold (0.85)
+
+2. **Adjust the anomaly threshold** in `backend/app/config.py`:
+   - Higher threshold (0.85-0.9) = fewer false positives, better precision
+   - Lower threshold (0.6-0.7) = more detections, better recall
+
+3. **Generate more realistic demo data** with higher anomaly rates to better test the model
+
 ### Local Development
 
 See [SETUP.md](SETUP.md) for detailed local setup instructions.
