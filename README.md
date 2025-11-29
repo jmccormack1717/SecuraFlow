@@ -2,12 +2,16 @@
 
 Real-time API monitoring and anomaly detection system. A full-stack application combining FastAPI backend, React frontend, and ML-based anomaly detection.
 
+🌐 **Live Demo**: [https://securaflow-frontend.onrender.com](https://securaflow-frontend.onrender.com)
+
 ## Features
 
 - **Real-time Traffic Monitoring**: Process and analyze API traffic in real-time
-- **ML-based Anomaly Detection**: Detect anomalies using machine learning models
-- **Interactive Dashboard**: React-based dashboard with real-time visualizations
-- **Production Ready**: Docker containerization and CI/CD setup
+- **ML-based Anomaly Detection**: Detect anomalies using machine learning models (Isolation Forest)
+- **Interactive Dashboard**: React-based dashboard with real-time visualizations and metrics
+- **Dark Mode Support**: Toggle between light and dark themes with system preference detection
+- **Demo Data Generation**: One-click demo data generation for testing and demonstrations
+- **Production Ready**: Docker containerization, CI/CD setup, and deployed on Render
 
 ## Architecture
 
@@ -82,6 +86,9 @@ docker-compose up
 - `GET /api/metrics` - Get aggregated metrics
 - `GET /api/anomalies` - Get detected anomalies
 - `GET /api/health` - Health check
+- `POST /api/demo/generate` - Generate demo traffic data (for testing)
+
+See the [API documentation](https://securaflow-backend-9ihj.onrender.com/docs) for detailed endpoint information.
 
 ## Project Structure
 
@@ -89,11 +96,42 @@ docker-compose up
 securaflow/
 ├── backend/
 │   ├── app/           # FastAPI application
+│   │   ├── api/       # API routes
+│   │   ├── database/  # Database models and setup
+│   │   ├── services/  # Business logic (anomaly detection, feature extraction)
+│   │   └── models/    # Pydantic schemas
 │   ├── ml/            # ML training scripts
 │   └── models/        # Trained models
-├── frontend/          # React application
-└── .github/          # CI/CD workflows
+├── frontend/          # React + TypeScript application
+│   ├── src/
+│   │   ├── components/  # React components
+│   │   ├── pages/       # Page components
+│   │   ├── services/    # API client
+│   │   └── contexts/    # React contexts (Theme)
+│   └── public/         # Static assets
+├── traffic-generator/  # Traffic generation script for testing
+└── .github/           # CI/CD workflows
 ```
+
+## Deployment
+
+The application is deployed on Render:
+- **Frontend**: [https://securaflow-frontend.onrender.com](https://securaflow-frontend.onrender.com)
+- **Backend API**: [https://securaflow-backend-9ihj.onrender.com](https://securaflow-backend-9ihj.onrender.com)
+- **API Docs**: [https://securaflow-backend-9ihj.onrender.com/docs](https://securaflow-backend-9ihj.onrender.com/docs)
+
+## Usage
+
+### Using the Live Demo
+
+1. Visit the [live demo](https://securaflow-frontend.onrender.com)
+2. Click "Generate Demo Data" on the dashboard to populate with sample traffic
+3. Explore the dashboard, metrics, and anomalies pages
+4. Toggle dark mode using the sun/moon icon in the header
+
+### Local Development
+
+See [SETUP.md](SETUP.md) for detailed local setup instructions.
 
 ## License
 

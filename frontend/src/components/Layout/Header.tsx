@@ -8,14 +8,18 @@ export default function Header() {
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">SF</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="/favicon.svg" 
+              alt="SecuraFlow Logo" 
+              className="w-8 h-8"
+            />
+            <div className="flex flex-col">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">SecuraFlow</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Real-time API Security & Monitoring</p>
             </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">SecuraFlow</h1>
           </Link>
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400">API Monitoring Dashboard</span>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

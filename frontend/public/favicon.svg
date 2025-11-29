@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="flowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Shield base - security symbol -->
+  <path d="M32 6 L18 11 L18 30 C18 42 26 50 32 54 C38 50 46 42 46 30 L46 11 Z" 
+        fill="url(#shieldGrad)" 
+        stroke="#1e40af" 
+        stroke-width="2.5"/>
+  
+  <!-- Checkmark inside shield - validation/security -->
+  <path d="M26 32 L30 36 L38 28" 
+        stroke="white" 
+        stroke-width="3.5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        fill="none"/>
+  
+  <!-- Flow lines - representing data flow/monitoring -->
+  <path d="M8 24 Q18 28 28 24" 
+        stroke="url(#flowGrad)" 
+        stroke-width="2.5" 
+        stroke-linecap="round" 
+        fill="none"/>
+  <path d="M36 24 Q46 28 56 24" 
+        stroke="url(#flowGrad)" 
+        stroke-width="2.5" 
+        stroke-linecap="round" 
+        fill="none"/>
+  
+  <!-- Data points -->
+  <circle cx="8" cy="24" r="2.5" fill="#60a5fa"/>
+  <circle cx="56" cy="24" r="2.5" fill="#60a5fa"/>
+</svg>
+

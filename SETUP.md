@@ -114,6 +114,17 @@ docker-compose exec backend python ml/train.py
 
 ## Testing the System
 
+### Option 1: Using Demo Data Generator (Recommended)
+
+1. **Start backend and frontend** (see above)
+
+2. **Open the dashboard:**
+   - Navigate to `http://localhost:3000`
+   - Click the "Generate Demo Data" button on the dashboard
+   - This will create 200 traffic logs over the last 24 hours with ~15% anomalies
+
+### Option 2: Using Traffic Generator Script
+
 1. **Start backend and frontend** (see above)
 
 2. **Generate traffic** (in a new terminal):
@@ -155,6 +166,9 @@ curl http://localhost:8000/api/metrics
 
 # Get anomalies
 curl http://localhost:8000/api/anomalies
+
+# Generate demo data
+curl -X POST "http://localhost:8000/api/demo/generate?count=100&anomaly_rate=0.15&hours_back=24"
 ```
 
 ## Troubleshooting
@@ -174,11 +188,31 @@ curl http://localhost:8000/api/anomalies
 - Check VITE_API_URL in frontend `.env`
 - Check CORS settings in backend `config.py`
 
+## Features
+
+### Dark Mode
+- Toggle between light and dark themes using the sun/moon icon in the header
+- Preference is saved in localStorage
+- Automatically detects system preference on first visit
+
+### Demo Data Generation
+- Click "Generate Demo Data" button on the dashboard when no data exists
+- Generates realistic traffic patterns with configurable anomaly rates
+- Useful for testing and demonstrations
+
+## Deployment
+
+The application is deployed on Render:
+- **Frontend**: [https://securaflow-frontend.onrender.com](https://securaflow-frontend.onrender.com)
+- **Backend**: [https://securaflow-backend-9ihj.onrender.com](https://securaflow-backend-9ihj.onrender.com)
+
+See the main [README.md](../README.md) for deployment details.
+
 ## Next Steps
 
 - Customize anomaly detection threshold
 - Add more features to the ML model
 - Enhance dashboard visualizations
 - Add authentication
-- Deploy to Render
+- Add more anomaly types
 
