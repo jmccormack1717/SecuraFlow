@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -72,4 +72,22 @@ jobs:
     - name: Build
       working-directory: ./frontend
       run: npm run build
+
+  # Status check job - gates deployment to Render
+  # This job only runs on pushes (not PRs) and ensures all tests pass before deployment
+  all-tests-pass:
+    name: All Tests Pass
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test]
+    # Only run this status check on pushes to main/develop (for deployment gating)
+    # PRs will still run tests but won't trigger this status check
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    steps:
+      - name: All tests passed successfully
+        run: |
+          echo "✅ All tests passed!"
+          echo "Backend tests: ✅"
+          echo "Frontend tests: ✅"
+          echo ""
+          echo "Deployment to Render can proceed."
 
