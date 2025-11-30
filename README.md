@@ -29,54 +29,54 @@ Real-time API monitoring and anomaly detection system. A full-stack application 
 
 ```mermaid
 graph TB
-    subgraph "Client Layer"
-        User[Users/Browsers]
-        TrafficGen[Traffic Generator Script]
+    subgraph ClientLayer["Client Layer"]
+        User["Users/Browsers"]
+        TrafficGen["Traffic Generator Script"]
     end
 
-    subgraph "Frontend - React + TypeScript"
-        UI[Dashboard UI]
-        Components[React Components]
-        API_Client[API Client Service]
+    subgraph Frontend["Frontend - React + TypeScript"]
+        UI["Dashboard UI"]
+        Components["React Components"]
+        API_Client["API Client Service"]
     end
 
-    subgraph "Backend - FastAPI"
-        API[FastAPI Application]
-        RateLimit[Rate Limiter]
-        CORS[CORS Middleware]
+    subgraph Backend["Backend - FastAPI"]
+        API["FastAPI Application"]
+        RateLimit["Rate Limiter"]
+        CORS["CORS Middleware"]
         
-        subgraph "API Routes"
-            TrafficRoute[/api/traffic]
-            MetricsRoute[/api/metrics]
-            AnomaliesRoute[/api/anomalies]
-            HealthRoute[/api/health]
-            DemoRoute[/api/demo/generate]
+        subgraph APIRoutes["API Routes"]
+            TrafficRoute["/api/traffic"]
+            MetricsRoute["/api/metrics"]
+            AnomaliesRoute["/api/anomalies"]
+            HealthRoute["/api/health"]
+            DemoRoute["/api/demo/generate"]
         end
         
-        subgraph "Services"
-            FeatureExtractor[Feature Extractor]
-            AnomalyDetector[Anomaly Detector]
-            Logger[Logging Service]
+        subgraph Services["Services"]
+            FeatureExtractor["Feature Extractor"]
+            AnomalyDetector["Anomaly Detector"]
+            Logger["Logging Service"]
         end
     end
 
-    subgraph "Data Layer"
-        PostgreSQL[(PostgreSQL Database)]
-        TrafficLogs[Traffic Logs Table]
-        Anomalies[Anomalies Table]
-        Metrics[Metrics Aggregation]
+    subgraph DataLayer["Data Layer"]
+        PostgreSQL[("PostgreSQL Database")]
+        TrafficLogs["Traffic Logs Table"]
+        Anomalies["Anomalies Table"]
+        MetricsAgg["Metrics Aggregation"]
     end
 
-    subgraph "ML Pipeline"
-        MLModel[Isolation Forest Model]
-        Scaler[Feature Scaler]
-        Training[Training Script]
+    subgraph MLPipeline["ML Pipeline"]
+        MLModel["Isolation Forest Model"]
+        Scaler["Feature Scaler"]
+        Training["Training Script"]
     end
 
-    subgraph "Deployment"
-        Render[Render Platform]
-        Docker[Docker Containers]
-        CI[GitHub Actions CI/CD]
+    subgraph Deployment["Deployment"]
+        Render["Render Platform"]
+        Docker["Docker Containers"]
+        CI["GitHub Actions CI/CD"]
     end
 
     %% User interactions
@@ -85,7 +85,7 @@ graph TB
     API_Client -->|REST API| API
     
     %% Traffic generation
-    TrafficGen -->|POST /api/traffic| TrafficRoute
+    TrafficGen -->|POST Request| TrafficRoute
     
     %% API flow
     API --> RateLimit
@@ -106,7 +106,7 @@ graph TB
     %% Data storage
     PostgreSQL --> TrafficLogs
     PostgreSQL --> Anomalies
-    PostgreSQL --> Metrics
+    PostgreSQL --> MetricsAgg
     
     %% Metrics and anomalies retrieval
     MetricsRoute --> PostgreSQL
