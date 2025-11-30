@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     
     # ML Model
     model_path: str = "./models/anomaly_detector_v1.pkl"
-    anomaly_threshold: float = 0.75  # Optimized for good precision/recall balance
+    anomaly_threshold: float = 0.6  # Lowered for better detection of clear anomalies
     
     # API
     api_title: str = "SecuraFlow API"
