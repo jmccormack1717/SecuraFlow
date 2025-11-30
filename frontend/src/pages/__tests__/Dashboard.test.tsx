@@ -39,9 +39,13 @@ describe('Dashboard', () => {
     })
   })
 
-  it('renders dashboard title', () => {
+  it('renders dashboard title', async () => {
     render(<Dashboard />)
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    
+    // Wait for loading to complete and Dashboard title to appear
+    await waitFor(() => {
+      expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    })
   })
 
   it('displays loading state initially', () => {
