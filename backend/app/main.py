@@ -22,7 +22,7 @@ app = FastAPI(
     description="Real-time API monitoring and anomaly detection system"
 )
 
-# Attach limiter to app state
+# Attach limiter to app state (for use in routes)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

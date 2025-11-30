@@ -46,3 +46,4 @@ def test_get_metrics_with_time_range(client, sample_traffic_data):
     data = response.json()
     assert "metrics" in data
 
+

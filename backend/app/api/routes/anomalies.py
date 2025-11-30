@@ -73,3 +73,4 @@ async def get_anomalies(
         logger.error(f"Error fetching anomalies: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching anomalies: {str(e)}")
 
+

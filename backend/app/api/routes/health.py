@@ -52,3 +52,4 @@ async def health_check(db: Session = Depends(get_db)):
             uptime_seconds=0.0
         )
 
+

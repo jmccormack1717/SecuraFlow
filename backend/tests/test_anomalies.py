@@ -34,3 +34,4 @@ def test_get_anomalies_filter_unresolved(client):
     for anomaly in data["anomalies"]:
         assert anomaly["is_resolved"] is False
 
+
