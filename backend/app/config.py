@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     metrics_window_seconds: int = 60  # Aggregate metrics every minute
     
     # Model evaluation
-    model_evaluation_hours: int = 24  # Evaluate model performance over last N hours
+    model_evaluation_logs: int = 500  # Evaluate model performance over last N traffic logs
     
     # Rate limiting
     rate_limit_per_minute: int = 60  # Requests per minute per IP

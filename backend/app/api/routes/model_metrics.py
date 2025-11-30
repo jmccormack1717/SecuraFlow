@@ -7,7 +7,7 @@ from app.database.base import get_db
 from app.database.models import ModelPerformance, Anomaly, TrafficLog
 from app.models.schemas import ModelPerformanceResponse, ModelPerformanceListResponse
 from app.utils.logger import get_logger
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/model-metrics", tags=["model-metrics"])
@@ -51,44 +51,40 @@ async def get_model_metrics(
 
 @router.post("/evaluate")
 async def evaluate_model_performance(
-    hours: int = Query(None, ge=1, le=168, description="Time window in hours (defaults to config setting)"),
+    limit: int = Query(None, ge=50, le=5000, description="Number of recent traffic logs to evaluate (defaults to config setting)"),
     db: Session = Depends(get_db)
 ):
     """
     Evaluate current model performance based on recent predictions.
     
-    Uses a fixed time window (default: last 24 hours) to evaluate model performance.
+    Uses the last N traffic logs (default: 500) to evaluate model performance.
     This ensures consistent, comparable metrics regardless of when data was generated.
+    Perfect for demos where data might be sparse or old.
     """
     try:
         from app.config import settings
         
-        # Use provided hours or default from config
-        evaluation_hours = hours if hours is not None else settings.model_evaluation_hours
+        # Use provided limit or default from config
+        evaluation_limit = limit if limit is not None else settings.model_evaluation_logs
         
-        # Calculate fixed time window: last N hours from now
-        end_time = datetime.now(timezone.utc)
-        start_time = end_time - timedelta(hours=evaluation_hours)
+        logger.info(f"Evaluating model performance on last {evaluation_limit} traffic logs")
         
-        logger.info(f"Evaluating model performance for last {evaluation_hours} hours (from {start_time} to {end_time})")
-        
-        # Get all anomalies detected in the time window
-        anomalies_in_window = db.query(Anomaly).filter(
-            Anomaly.detected_at >= start_time,
-            Anomaly.detected_at <= end_time
-        ).all()
-        
-        # Get all traffic logs in the time window
-        all_logs = db.query(TrafficLog).filter(
-            TrafficLog.timestamp >= start_time,
-            TrafficLog.timestamp <= end_time
-        ).all()
+        # Get the most recent N traffic logs
+        all_logs = db.query(TrafficLog).order_by(
+            desc(TrafficLog.timestamp)
+        ).limit(evaluation_limit).all()
         
         if not all_logs:
             raise HTTPException(
                 status_code=404, 
-                detail=f"No traffic logs found in the last {evaluation_hours} hours for evaluation"
+                detail="No traffic logs found for evaluation"
             )
+        
+        # Get all anomaly log IDs from these traffic logs
+        log_ids = [log.id for log in all_logs]
+        anomalies_in_window = db.query(Anomaly).filter(
+            Anomaly.traffic_log_id.in_(log_ids)
+        ).all()
         
         # Create a set of traffic log IDs that have detected anomalies
         anomaly_log_ids = {a.traffic_log_id for a in anomalies_in_window if a.traffic_log_id}
