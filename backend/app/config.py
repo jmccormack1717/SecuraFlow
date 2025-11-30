@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     # Metrics aggregation
     metrics_window_seconds: int = 60  # Aggregate metrics every minute
     
+    # Model evaluation
+    model_evaluation_hours: int = 24  # Evaluate model performance over last N hours
+    
     # Rate limiting
     rate_limit_per_minute: int = 60  # Requests per minute per IP
     rate_limit_enabled: bool = True

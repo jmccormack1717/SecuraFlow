@@ -7,7 +7,7 @@ from app.database.base import get_db
 from app.database.models import ModelPerformance, Anomaly, TrafficLog
 from app.models.schemas import ModelPerformanceResponse, ModelPerformanceListResponse
 from app.utils.logger import get_logger
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/model-metrics", tags=["model-metrics"])
@@ -51,37 +51,53 @@ async def get_model_metrics(
 
 @router.post("/evaluate")
 async def evaluate_model_performance(
+    hours: int = Query(None, ge=1, le=168, description="Time window in hours (defaults to config setting)"),
     db: Session = Depends(get_db)
 ):
-    """Evaluate current model performance based on recent predictions."""
+    """
+    Evaluate current model performance based on recent predictions.
+    
+    Uses a fixed time window (default: last 24 hours) to evaluate model performance.
+    This ensures consistent, comparable metrics regardless of when data was generated.
+    """
     try:
         from app.config import settings
         
-        # Get recent anomalies and traffic logs
-        # For evaluation, we'll use a simple approach:
-        # Compare detected anomalies with actual error patterns
+        # Use provided hours or default from config
+        evaluation_hours = hours if hours is not None else settings.model_evaluation_hours
         
-        recent_anomalies = db.query(Anomaly).order_by(
-            desc(Anomaly.detected_at)
-        ).limit(1000).all()
+        # Calculate fixed time window: last N hours from now
+        end_time = datetime.now(timezone.utc)
+        start_time = end_time - timedelta(hours=evaluation_hours)
         
-        if not recent_anomalies:
-            raise HTTPException(status_code=404, detail="No anomalies found for evaluation")
+        logger.info(f"Evaluating model performance for last {evaluation_hours} hours (from {start_time} to {end_time})")
         
-        # Get corresponding traffic logs
-        traffic_log_ids = [a.traffic_log_id for a in recent_anomalies if a.traffic_log_id]
-        traffic_logs = db.query(TrafficLog).filter(
-            TrafficLog.id.in_(traffic_log_ids)
+        # Get all anomalies detected in the time window
+        anomalies_in_window = db.query(Anomaly).filter(
+            Anomaly.detected_at >= start_time,
+            Anomaly.detected_at <= end_time
         ).all()
         
-        # Create a mapping
-        log_map = {log.id: log for log in traffic_logs}
+        # Get all traffic logs in the time window
+        all_logs = db.query(TrafficLog).filter(
+            TrafficLog.timestamp >= start_time,
+            TrafficLog.timestamp <= end_time
+        ).all()
+        
+        if not all_logs:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"No traffic logs found in the last {evaluation_hours} hours for evaluation"
+            )
+        
+        # Create a set of traffic log IDs that have detected anomalies
+        anomaly_log_ids = {a.traffic_log_id for a in anomalies_in_window if a.traffic_log_id}
         
         # Calculate metrics
-        # True Positive: Anomaly detected AND actual error (status >= 400)
-        # False Positive: Anomaly detected BUT no error (status < 400)
-        # True Negative: No anomaly AND no error
-        # False Negative: No anomaly BUT actual error
+        # True Positive: Anomaly detected AND actual anomaly (server error, very slow, or very large)
+        # False Positive: Anomaly detected BUT no actual anomaly
+        # True Negative: No anomaly detected AND no actual anomaly
+        # False Negative: No anomaly detected BUT actual anomaly exists
         
         tp = 0
         fp = 0
@@ -89,33 +105,26 @@ async def evaluate_model_performance(
         tn = 0
         total_score = 0.0
         
-        anomaly_ids = {a.id for a in recent_anomalies}
-        
-        # Check all traffic logs in the time range
-        start_time = min(a.detected_at for a in recent_anomalies)
-        all_logs = db.query(TrafficLog).filter(
-            TrafficLog.timestamp >= start_time
-        ).limit(5000).all()
-        
         for log in all_logs:
-            # Better ground truth: consider multiple anomaly indicators
-            # True anomaly if: server error (5xx), very slow response (>2000ms), or very large request (>10MB)
+            # Ground truth: consider multiple anomaly indicators
+            # True anomaly if: server error (5xx), very slow response (>3000ms), or very large request (>10MB)
             is_true_anomaly = (
-                log.status_code >= 500 or  # Server errors
-                log.response_time_ms > 2000 or  # Very slow
-                (log.request_size_bytes and log.request_size_bytes > 10000000) or  # Very large request
-                (log.response_size_bytes and log.response_size_bytes > 50000000)  # Very large response
+                log.status_code >= 500 or  # Server errors (5xx)
+                log.response_time_ms > 3000 or  # Very slow (>3 seconds)
+                (log.request_size_bytes and log.request_size_bytes > 10000000) or  # Very large request (>10MB)
+                (log.response_size_bytes and log.response_size_bytes > 10000000)  # Very large response (>10MB)
             )
             
-            is_anomaly = any(a.traffic_log_id == log.id for a in recent_anomalies)
+            # Check if this log was detected as an anomaly
+            is_detected_anomaly = log.id in anomaly_log_ids
             
-            if is_anomaly:
+            if is_detected_anomaly:
                 if is_true_anomaly:
                     tp += 1
                 else:
                     fp += 1
                 # Get anomaly score
-                for anomaly in recent_anomalies:
+                for anomaly in anomalies_in_window:
                     if anomaly.traffic_log_id == log.id:
                         total_score += anomaly.anomaly_score
                         break
