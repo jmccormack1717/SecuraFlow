@@ -46,6 +46,9 @@ module.exports = {
       ],
       plugins: ['@typescript-eslint', 'react', 'react-hooks'],
       rules: {
+        // React 17+ doesn't require React import
+        'react/react-in-jsx-scope': 'off',
+        'react/prop-types': 'off',
         // TypeScript handles unused vars
         'no-unused-vars': 'off',
         '@typescript-eslint/no-unused-vars': ['warn', { 
@@ -56,6 +59,8 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'warn',
         // Allow empty interfaces (e.g., for extending)
         '@typescript-eslint/no-empty-interface': 'off',
+        // Allow unescaped entities in JSX (quotes, apostrophes)
+        'react/no-unescaped-entities': 'warn',
       },
     },
   ],
