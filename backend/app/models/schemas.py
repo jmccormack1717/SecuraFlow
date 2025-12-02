@@ -1,5 +1,5 @@
 """Pydantic schemas for request/response validation."""
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
@@ -105,7 +105,7 @@ class ModelPerformanceListResponse(BaseModel):
 
 class UserCreate(BaseModel):
     """Schema for user creation."""
-    email: str = Field(..., description="User email address")
+    email: EmailStr = Field(..., description="User email address")
     username: str = Field(..., min_length=3, max_length=100, description="Username")
     password: str = Field(..., min_length=6, description="Password")
 
