@@ -74,3 +74,4 @@ async def get_anomalies(
         raise HTTPException(status_code=500, detail=f"Error fetching anomalies: {str(e)}")
 
 
+

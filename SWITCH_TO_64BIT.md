@@ -60,3 +60,4 @@ You can have both installed. Just make sure to:
 - If still issues: Use full path: `C:\Users\james\AppData\Local\Programs\Python\Python311\python.exe -m venv venv`
 
 
+
