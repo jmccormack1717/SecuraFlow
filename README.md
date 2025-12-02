@@ -1,5 +1,12 @@
 # SecuraFlow
 
+![CI/CD](https://github.com/james/SecuraFLow/workflows/CI%2FCD%20Pipeline/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)
+![React](https://img.shields.io/badge/React-18.2-blue.svg)
+
 Real-time API monitoring and anomaly detection system. A full-stack application combining FastAPI backend, React frontend, and ML-based anomaly detection.
 
 🌐 **Live Demo**: [https://securaflow-frontend.onrender.com](https://securaflow-frontend.onrender.com)
@@ -17,6 +24,35 @@ Real-time API monitoring and anomaly detection system. A full-stack application 
 - **Dark Mode Support**: Toggle between light and dark themes with system preference detection
 - **Demo Data Generation**: One-click demo data generation for testing and demonstrations
 - **Production Ready**: Docker containerization, CI/CD setup, comprehensive testing, and deployed on Render
+
+## Tech Stack
+
+**Backend:**
+- **FastAPI** 0.104.1 - Modern, fast web framework for building APIs
+- **PostgreSQL** 15 - Robust relational database
+- **SQLAlchemy** 2.0.23 - SQL toolkit and ORM
+- **Scikit-learn** 1.3.2 - Machine learning library (Isolation Forest)
+- **Pydantic** 2.5.0 - Data validation using Python type annotations
+- **JWT** (python-jose) - Authentication and authorization
+
+**Frontend:**
+- **React** 18.2.0 - UI library
+- **TypeScript** 5.3.3 - Typed JavaScript
+- **Tailwind CSS** 3.3.6 - Utility-first CSS framework
+- **Vite** 5.0.8 - Next-generation frontend tooling
+- **Recharts** 2.10.3 - Composable charting library
+- **Axios** 1.6.2 - HTTP client
+
+**ML & Data:**
+- **Isolation Forest** - Unsupervised anomaly detection algorithm
+- **Pandas** 2.1.3 - Data manipulation and analysis
+- **NumPy** 1.26.2 - Numerical computing
+
+**DevOps & Deployment:**
+- **Docker** - Containerization
+- **GitHub Actions** - CI/CD pipeline
+- **Render** - Cloud hosting platform
+- **PostgreSQL** - Production database
 
 ## Architecture
 
@@ -277,7 +313,38 @@ If model performance metrics are low (high false positives), you can:
 
 See [SETUP.md](SETUP.md) for detailed local setup instructions.
 
+## Performance
+
+SecuraFlow is optimized for production use with several performance enhancements:
+
+- **Database Indexing**: Strategic indexes on frequently queried fields (timestamp, endpoint, status_code) for fast lookups
+- **Connection Pooling**: SQLAlchemy connection pooling for efficient database access
+- **Efficient Aggregations**: Optimized SQL queries for metrics aggregation with percentile calculations
+- **ML Model Caching**: Pre-loaded ML models in memory to avoid disk I/O on every prediction
+- **Rate Limiting**: Prevents API abuse and ensures fair resource usage
+- **Structured Logging**: JSON-formatted logs for efficient parsing and analysis
+- **Async/Await**: FastAPI's async support for handling concurrent requests efficiently
+
+## Future Improvements
+
+Planned enhancements and potential features:
+
+- **WebSocket Support**: Real-time updates via WebSockets instead of polling
+- **Model Auto-Retraining**: Automated ML model retraining pipeline based on new data
+- **Alerting System**: Email/Slack notifications for detected anomalies
+- **Multi-Tenant Support**: Support for multiple organizations/workspaces
+- **Advanced Analytics**: Time-series forecasting and trend analysis
+- **Export Functionality**: CSV/JSON export of metrics and anomalies
+- **Custom Anomaly Rules**: User-defined detection rules in addition to ML
+- **API Key Management**: Enhanced authentication with API keys for programmatic access
+- **Performance Monitoring**: APM integration for deeper system insights
+- **GraphQL API**: Alternative API interface for flexible data queries
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
