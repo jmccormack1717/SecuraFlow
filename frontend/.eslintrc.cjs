@@ -37,9 +37,25 @@ module.exports = {
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
+      parser: '@typescript-eslint/parser',
+      extends: [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:react/recommended',
+        'plugin:react-hooks/recommended',
+      ],
+      plugins: ['@typescript-eslint', 'react', 'react-hooks'],
       rules: {
-        // TypeScript handles unused vars, but we still want to catch obvious issues
+        // TypeScript handles unused vars
         'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': ['warn', { 
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        }],
+        // Allow any types for flexibility in development
+        '@typescript-eslint/no-explicit-any': 'warn',
+        // Allow empty interfaces (e.g., for extending)
+        '@typescript-eslint/no-empty-interface': 'off',
       },
     },
   ],

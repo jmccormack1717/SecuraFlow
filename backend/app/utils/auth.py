@@ -5,9 +5,31 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from app.config import settings
 
+# Workaround for passlib/bcrypt compatibility issue in CI environments
+# Passlib's bug detection can fail with certain bcrypt versions.
+# We monkeypatch the bug detection to skip it if it fails.
+try:
+    import passlib.handlers.bcrypt as bcrypt_module
+    
+    # Store original detect_wrap_bug function if it exists
+    if hasattr(bcrypt_module, 'detect_wrap_bug'):
+        _original_detect_wrap_bug = bcrypt_module.detect_wrap_bug
+        
+        def _safe_detect_wrap_bug(ident):
+            """Safe wrapper for bug detection that handles errors gracefully."""
+            try:
+                return _original_detect_wrap_bug(ident)
+            except (ValueError, AttributeError):
+                # If bug detection fails, assume no bug (safe default)
+                return False
+        
+        # Replace the function
+        bcrypt_module.detect_wrap_bug = _safe_detect_wrap_bug
+except (ImportError, AttributeError):
+    # If monkeypatching fails, continue - error handling in get_password_hash will catch issues
+    pass
+
 # Initialize password context
-# Note: There's a known issue with passlib 1.7.4 and certain bcrypt versions
-# where bug detection during initialization can fail. This is handled in get_password_hash.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
