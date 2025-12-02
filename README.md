@@ -1,6 +1,6 @@
 # SecuraFlow
 
-![CI/CD](https://github.com/james/SecuraFLow/workflows/CI%2FCD%20Pipeline/badge.svg)
+![CI/CD](https://github.com/jmccormack1717/SecuraFLow/workflows/CI%2FCD%20Pipeline/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)
