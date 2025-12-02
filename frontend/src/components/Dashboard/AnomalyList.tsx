@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
+import { Anomaly } from '../../services/api'
 
 interface AnomalyListProps {
-  anomalies: any[]
+  anomalies: Anomaly[]
 }
 
 export default function AnomalyList({ anomalies }: AnomalyListProps) {

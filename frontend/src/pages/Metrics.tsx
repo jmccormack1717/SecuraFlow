@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { metricsApi } from '../services/api'
+import { metricsApi, Metric } from '../services/api'
 import TrafficChart from '../components/Dashboard/TrafficChart'
 
 export default function Metrics() {
-  const [metrics, setMetrics] = useState<any[]>([])
+  const [metrics, setMetrics] = useState<Metric[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

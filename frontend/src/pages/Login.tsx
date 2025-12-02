@@ -18,8 +18,9 @@ export default function Login() {
     try {
       await login(username, password)
       navigate('/')
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      setError(error.response?.data?.detail || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -31,7 +32,7 @@ export default function Login() {
     try {
       await demoLogin()
       navigate('/')
-    } catch (err: any) {
+    } catch {
       setError('Failed to start demo. Please try again.')
     } finally {
       setLoading(false)
@@ -118,7 +119,7 @@ export default function Login() {
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link to="/signup" className="text-primary-600 dark:text-primary-400 hover:underline font-medium">
               Sign up
             </Link>
@@ -126,7 +127,7 @@ export default function Login() {
         </div>
 
         <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-500">
-          Use "Continue as Guest" to explore the demo without creating an account
+          Use &quot;Continue as Guest&quot; to explore the demo without creating an account
         </p>
       </div>
     </div>

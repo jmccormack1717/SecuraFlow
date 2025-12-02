@@ -21,7 +21,7 @@ beforeAll(() => {
   // Mock ResizeObserver (jsdom doesn't support it by default)
   // Use window instead of global for browser compatibility
   if (typeof window !== 'undefined') {
-    (window as any).ResizeObserver = class ResizeObserver {
+    (window as Window & { ResizeObserver: typeof ResizeObserver }).ResizeObserver = class ResizeObserver {
       observe() {}
       unobserve() {}
       disconnect() {}

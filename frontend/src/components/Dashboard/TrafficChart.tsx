@@ -1,8 +1,9 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
+import { Metric } from '../../services/api'
 
 interface TrafficChartProps {
-  metrics: any[]
+  metrics: Metric[]
 }
 
 export default function TrafficChart({ metrics }: TrafficChartProps) {

@@ -52,7 +52,7 @@ export interface Anomaly {
   detected_at: string
   anomaly_score: number
   anomaly_type: string
-  features?: Record<string, any>
+  features?: Record<string, unknown>
   is_resolved: boolean
   traffic_log?: {
     id: number

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { modelMetricsApi } from '../services/api'
+import { modelMetricsApi, ModelPerformance } from '../services/api'
 import { format } from 'date-fns'
 
 export default function ModelMetrics() {
-  const [metrics, setMetrics] = useState<any[]>([])
+  const [metrics, setMetrics] = useState<ModelPerformance[]>([])
   const [loading, setLoading] = useState(true)
   const [evaluating, setEvaluating] = useState(false)
 
@@ -87,7 +87,7 @@ export default function ModelMetrics() {
         <div className="text-center py-12">
           <p className="text-gray-500 dark:text-gray-400 text-lg">No model performance metrics available</p>
           <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
-            Click "Evaluate Model" to generate performance metrics based on recent predictions
+            Click &quot;Evaluate Model&quot; to generate performance metrics based on recent predictions
           </p>
         </div>
       ) : (

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
-import { metricsApi, anomaliesApi, healthApi, demoApi } from '../services/api'
+import { metricsApi, anomaliesApi, healthApi, demoApi, Metric, Anomaly, HealthResponse } from '../services/api'
 import TrafficChart from '../components/Dashboard/TrafficChart'
 import MetricsCard from '../components/Dashboard/MetricsCard'
 import AnomalyList from '../components/Dashboard/AnomalyList'
 import SystemHealth from '../components/Dashboard/SystemHealth'
 
 export default function Dashboard() {
-  const [metrics, setMetrics] = useState<any[]>([])
-  const [recentAnomalies, setRecentAnomalies] = useState<any[]>([])
-  const [health, setHealth] = useState<any>(null)
+  const [metrics, setMetrics] = useState<Metric[]>([])
+  const [recentAnomalies, setRecentAnomalies] = useState<Anomaly[]>([])
+  const [health, setHealth] = useState<HealthResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
 

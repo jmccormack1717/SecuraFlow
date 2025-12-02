@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { anomaliesApi } from '../services/api'
+import { anomaliesApi, Anomaly } from '../services/api'
 import { format } from 'date-fns'
 
 export default function Anomalies() {
-  const [anomalies, setAnomalies] = useState<any[]>([])
+  const [anomalies, setAnomalies] = useState<Anomaly[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'unresolved'>('unresolved')
