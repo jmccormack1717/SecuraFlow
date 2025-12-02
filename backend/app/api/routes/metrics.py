@@ -70,12 +70,17 @@ async def get_metrics(
                 log_time = log_time.replace(tzinfo=timezone.utc)
             
             time_window = log_time.replace(second=0, microsecond=0)
-            key = (time_window, log.endpoint if not endpoint else None)
+            # When filtering by endpoint, group by time_window only
+            # When not filtering, group by time_window and endpoint
+            if endpoint:
+                key = (time_window,)
+            else:
+                key = (time_window, log.endpoint)
             
             if key not in metrics_dict:
                 metrics_dict[key] = {
                     'time_window': time_window,
-                    'endpoint': log.endpoint if not endpoint else None,
+                    'endpoint': log.endpoint if not endpoint else endpoint,
                     'response_times': [],
                     'error_count': 0,
                     'request_count': 0

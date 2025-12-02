@@ -193,7 +193,7 @@ def test_get_current_user_invalid_token(client):
 def test_get_current_user_no_token(client):
     """Test getting current user without token."""
     response = client.get("/api/auth/me")
-    assert response.status_code == 403  # FastAPI OAuth2 returns 403 for missing token
+    assert response.status_code == 401  # FastAPI OAuth2 returns 401 for missing token
 
 
 def test_get_current_user_demo_token(client):

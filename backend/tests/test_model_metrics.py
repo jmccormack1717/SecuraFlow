@@ -146,13 +146,14 @@ def test_evaluate_model_performance_confusion_matrix(client):
 def test_get_model_metrics_ordering(client, db_session):
     """Test that model metrics are returned in descending order by date."""
     from app.database.models import ModelPerformance
+    from datetime import timedelta
     
     # Create model performance records with different dates
     base_date = datetime.now(timezone.utc)
     for i in range(3):
         perf = ModelPerformance(
             model_version="v1",
-            evaluation_date=base_date.replace(day=base_date.day - i),
+            evaluation_date=base_date - timedelta(days=i),
             total_predictions=100,
             true_positives=10,
             false_positives=5,
